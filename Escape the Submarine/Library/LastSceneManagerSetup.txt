@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Escape the Submarine.unity
+- path: Assets/Scenes/Escape the Submarine.unity
   isLoaded: 1
   isActive: 1
