@@ -4,9 +4,8 @@ using UnityEngine;
 
 /// <summary>
 /// Manages Audiocall 
-/// need audio? Call: GameManager.instance._audiManager.Play("name of audio in audio map in resources map");
+/// need audio? Call: GameManager.instance._audiManager.Play("name of audio in audio map in resources map" + AudioSource);
 /// </summary>
-[RequireComponent(typeof(AudioSource))]
 public class AudioManager : MonoBehaviour
 {
     public List<AudioObject> Audio_Objects = new List<AudioObject>();
@@ -60,10 +59,22 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void Play(string key)
+    public void Play(AudioSource audioSource, string key, bool isLooping = false, bool randomPitch = false)
     {
         AudioClip audioClip = Audio_Objects.Find(item => item.key == key).audioClip;
-        _audioSource.clip = audioClip;
-        _audioSource.Play();
+        audioSource.clip = audioClip;
+        audioSource.loop = isLooping;
+
+        if (randomPitch)
+        {
+            audioSource.pitch = Random.Range(0.8f, 1.5f);
+        }
+        else
+        {
+            audioSource.pitch = 1f;
+
+        }
+
+        audioSource.Play();
     }
 }

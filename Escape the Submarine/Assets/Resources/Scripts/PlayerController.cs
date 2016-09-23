@@ -2,12 +2,66 @@
 
 public class PlayerController : MonoBehaviour
 {
-    private Rigidbody _rb;
+
     public float speed = 1;
+    public AudioSource walking;
+    public bool isColliding;
+    public bool Playing = true;
+
+    private Rigidbody _rb;
+    private bool stoppedMoving;
+    private CapsuleCollider _capCol;
+    private float collisionTimer;
+
     // Use this for initialization
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
+        _capCol = GetComponent<CapsuleCollider>();
+        //AudioManager.Instance.Play(walking, "MetaalVoetstappen", true);
+    }
+
+
+    /// <summary>
+    /// Activated when door is closed
+    /// </summary>
+    /// <param name="col"></param>
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.gameObject.tag != "Ground")
+        {
+            isColliding = true;
+            AudioManager.Instance.Play(walking, "Collision", false, true);
+        }
+    }
+
+    void HandleCollisionAudioManagement()
+    {
+        bool isMoving = _rb.velocity.sqrMagnitude > 0;
+
+        if (isColliding)
+        {
+            collisionTimer += Time.deltaTime;
+            if (collisionTimer > walking.clip.length)
+            {
+                isColliding = false;
+                collisionTimer = 0;
+            }
+
+        }
+
+        else
+        {
+            if (isMoving && !walking.isPlaying)
+            {
+                walking.Play();
+            }
+            if (!isMoving && walking.isPlaying || isColliding)
+            {
+                walking.Stop();
+            }
+        }
+
 
     }
 
@@ -18,11 +72,17 @@ public class PlayerController : MonoBehaviour
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
 
-        Debug.Log(moveHorizontal);
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         _rb.velocity = movement * speed;
 
+        if (Playing)
+        {
+            HandleCollisionAudioManagement();
+        }
 
     }
+
+
+
 }
