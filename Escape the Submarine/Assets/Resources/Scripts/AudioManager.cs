@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 
 /// <summary>
@@ -61,6 +62,11 @@ public class AudioManager : MonoBehaviour
 
     public void Play(AudioSource audioSource, string key, bool isLooping = false, bool randomPitch = false)
     {
+        if (audioSource == null)
+        {
+            audioSource = _audioSource;
+        }
+
         AudioClip audioClip = Audio_Objects.Find(item => item.key == key).audioClip;
         audioSource.clip = audioClip;
         audioSource.loop = isLooping;

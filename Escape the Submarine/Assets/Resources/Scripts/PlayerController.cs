@@ -18,7 +18,6 @@ public class PlayerController : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody>();
         _capCol = GetComponent<CapsuleCollider>();
-        //AudioManager.Instance.Play(walking, "MetaalVoetstappen", true);
     }
 
 
@@ -69,19 +68,20 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
 
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
-
-
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-        _rb.velocity = movement * speed;
-
-        if (Playing)
+        if (!GameManager.Instance.capturedFlag && !GameManager.Instance.drown)
         {
+            float moveHorizontal = Input.GetAxis("Horizontal");
+            float moveVertical = Input.GetAxis("Vertical");
+
+            Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+            _rb.velocity = movement * speed;
             HandleCollisionAudioManagement();
         }
 
+
+
     }
+
 
 
 

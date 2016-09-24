@@ -18,8 +18,11 @@ public class RoomChain : MonoBehaviour
     [SerializeField]
     private int roomLayerCounter = 1;
 
+
+
     void Start()
     {
+
         if (RoomsList.Count == 0)
         {
             Debug.LogError("ROOMCHAIN NOT SET !, FIX ME oooo jaaa geee");
@@ -29,10 +32,12 @@ public class RoomChain : MonoBehaviour
         foreach (Room room in RoomsList[0].rooms)
         {
             room.startWaterFlow();
-            room.SetDoorBleeps();
         }
 
     }
+
+
+
     // Update is called once per frame
     void Update()
     {
@@ -63,3 +68,5 @@ public class RoomChain : MonoBehaviour
         }
     }
 }
+
+

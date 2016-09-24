@@ -5,13 +5,18 @@ public class Room : MonoBehaviour
 {
     private AudioSource _audioSource;
     private bool _underWater;
-    private float _inHereTimer;
+    [SerializeField]
+    private float _underWaterTimer;
     private PlayerController playerController;
+    private float timeTillRoomFilled = 5;
+    private bool forcedStop;
+    private float _inHereTimer;
+
 
     public bool isExit;
     public bool playerInHere;
     public List<GameObject> BeeperGameObjects;
-    public float timeTillRoomFilled;
+
 
     void Awake()
     {
@@ -23,42 +28,82 @@ public class Room : MonoBehaviour
 
     void Update()
     {
-        if (playerInHere && isExit && playerController.Playing)
+        if (playerInHere && isExit)
         {
-
-            playerController.Playing = false;
-            AudioManager.Instance.Play(playerController.walking, "KlimNaarBuiten", false);
+            ForLongerThanXSecondHere(1);
         }
 
 
+        #region Drowning
         if (playerInHere && _underWater)
         {
-            ForLongerThanXSeconds(timeTillRoomFilled);
+            ForLongerThanXSecondsUnderWater(timeTillRoomFilled);
         }
         else
         {
-            _inHereTimer = 0.0f;
+            _underWaterTimer = 0.0f;
+        }
+        #endregion
+
+
+        if (GameManager.Instance.drown && !forcedStop)
+        {
+            DisableNuisanceSounds();
+            forcedStop = true;
+        }
+
+        if (GameManager.Instance.capturedFlag && !forcedStop)
+        {
+            DisableAllSounds();
+            forcedStop = true;
         }
     }
+
     void OnCollisionEnter(Collision col)
     {
         playerInHere = true;
 
-        SetPlayerVoetstapSound(col);
-        SetDoorBleeps();
+        if (!GameManager.Instance.capturedFlag && !GameManager.Instance.drown)
+        {
+            SetPlayerVoetstapSound(col);
+            SetDoorBleeps();
+        }
 
 
     }
-
     void OnCollisionExit(Collision col)
     {
         playerInHere = false;
     }
 
 
+    private void InitializeAudioSource()
+    {
+        //Initialize audioSource
+        GameObject parent = transform.parent.gameObject;
+        foreach (AudioSource adios in parent.GetComponentsInChildren<AudioSource>())
+        {
+            if (adios.gameObject.tag == "Hole")
+            {
+                _audioSource = adios;
+            }
+        }
 
-
-
+    }
+    private void DisableAllSounds()
+    {
+        DisableNuisanceSounds();
+        DisableAtmosphereSounds();
+    }
+    private void DisableAtmosphereSounds()
+    {
+        Camera.main.GetComponent<AudioSource>().Stop();
+    }
+    private void DisableNuisanceSounds()
+    {
+        DisableBeeps();
+        stopWaterFlow();
+    }
     private void SetPlayerVoetstapSound(Collision col)
     {
         AudioSource playerAudioSource = col.gameObject.GetComponent<PlayerController>().walking;
@@ -75,28 +120,37 @@ public class Room : MonoBehaviour
             AudioManager.Instance.Play(playerAudioSource, "MetaalVoetstappen", true);
         }
     }
-    private void InitializeAudioSource()
+    private void DisableBeeps()
     {
-        //Initialize audioSource
-        GameObject parent = transform.parent.gameObject;
-        foreach (AudioSource adios in parent.GetComponentsInChildren<AudioSource>())
+        int beeps = BeeperGameObjects.Count;
+        foreach (GameObject g_Object in BeeperGameObjects)
         {
-            if (adios.gameObject.tag == "Hole")
-            {
-                _audioSource = adios;
-            }
+            AudioSource adios = g_Object.GetComponent<AudioSource>();
+            adios.Stop();
+
         }
-
     }
-
-    private void ForLongerThanXSeconds(float x)
+    private void ForLongerThanXSecondHere(float x)
     {
         _inHereTimer += Time.deltaTime;
-        if (_inHereTimer > x)
+        if (_inHereTimer > x && !GameManager.Instance.capturedFlag)
         {
-            playerController.Playing = false;
+            GameManager.Instance.capturedFlag = true;
+            AudioManager.Instance.Play(playerController.walking, "KlimNaarBuiten", false);
+            GameManager.Instance.Win(playerController.walking.clip.length);
+
+
+        }
+    }
+    private void ForLongerThanXSecondsUnderWater(float x)
+    {
+        _underWaterTimer += Time.deltaTime;
+        if (_underWaterTimer > x && !GameManager.Instance.drown)
+        {
+            GameManager.Instance.drown = true;
             AudioManager.Instance.Play(playerController.walking, "IkVerdrink");
-            _inHereTimer = 0;
+            GameManager.Instance.Reset(playerController.walking.clip.length);
+
         }
     }
 
@@ -113,14 +167,10 @@ public class Room : MonoBehaviour
     public void startWaterFlow()
     {
         //Hack: uses bypassEffects to remember rooms that have been silenced
-        if (!_audioSource.bypassEffects)
+        if (!_audioSource.bypassEffects && !GameManager.Instance.drown && !GameManager.Instance.capturedFlag)
         {
             AudioManager.Instance.Play(_audioSource, "WaterStroomtUitGat", true);
             _underWater = true;
-
-            AudioSource playerAudioSource = GameObject.FindGameObjectWithTag("Player").gameObject.GetComponent<PlayerController>().walking;
-            //If yes set players sound to WaterVoetstappen
-            AudioManager.Instance.Play(playerAudioSource, "WaterVoetstappen", true);
         }
     }
     public void stopWaterFlow()
