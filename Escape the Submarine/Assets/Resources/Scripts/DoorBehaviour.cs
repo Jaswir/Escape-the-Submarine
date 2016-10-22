@@ -25,7 +25,7 @@ public class DoorBehaviour : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         //Speel normaal deur open geluid
-        AudioManager.Instance.Play(audioSource, "Deur");
+        AudioManager.Instance.Play(audioSource, "SubDoor");
 
         //Disables Trigger
         doorEntered = true;

@@ -1,15 +1,19 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public GameObject Alarm;
     public RoomChain RoomChain;
     public Canvas Canvas;
 
     public bool drown;
     public bool capturedFlag;
+
+    private bool soundActive = true;
 
 
     // Use this for initialization
@@ -22,7 +26,7 @@ public class GameManager : MonoBehaviour
     void WinMessage()
     {
         Text messageText = Canvas.GetComponentInChildren<Text>();
-        messageText.text = "You Managed to Escape a Sinking Submarine. The Audience goes wild and would like an encore.Will you take the leap?";
+        messageText.text = "";
     }
 
 
@@ -30,8 +34,8 @@ public class GameManager : MonoBehaviour
     {
         Text messageText = Canvas.GetComponentInChildren<Text>();
         messageText.text =
-            "You Drown in the Submarine. Shortly after the submarine shrinks to the bottom and implodes. " +
-            "All that's left of you is a clump of your carcass, the size of a peanut ";
+            "";
+        SceneManager.LoadScene("Escape the Submarine");
     }
 
     /// <summary>
@@ -63,6 +67,20 @@ public class GameManager : MonoBehaviour
         //SceneManager.LoadScene(0);
 
     }
+
+    public bool IsGameOver()
+    {
+        return Instance.capturedFlag || Instance.drown;
+    }
+    void Update()
+    {
+        if (IsGameOver() && soundActive)
+        {
+            Alarm.GetComponent<AudioSource>().volume = 0;
+            soundActive = false;
+        }
+    }
+
 
     /// <summary>
     /// Applies the singleton pattern.

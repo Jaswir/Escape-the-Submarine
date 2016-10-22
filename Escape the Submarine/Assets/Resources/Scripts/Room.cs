@@ -8,7 +8,7 @@ public class Room : MonoBehaviour
     [SerializeField]
     private float _underWaterTimer;
     private PlayerController playerController;
-    private float timeTillRoomFilled = 5;
+    public float timeTillRoomFilled = 10;
     private bool forcedStop;
     private float _inHereTimer;
 
@@ -30,31 +30,27 @@ public class Room : MonoBehaviour
     {
         if (playerInHere && isExit)
         {
-            ForLongerThanXSecondHere(1);
+            ForLongerThanXSecondHere(2);
         }
-
 
         #region Drowning
-        if (playerInHere && _underWater)
+        if (!GameManager.Instance.capturedFlag)
         {
-            ForLongerThanXSecondsUnderWater(timeTillRoomFilled);
+            if (playerInHere && _underWater)
+            {
+                ForLongerThanXSecondsUnderWater(timeTillRoomFilled);
+            }
+            else
+            {
+                _underWaterTimer = 0.0f;
+            }
         }
-        else
-        {
-            _underWaterTimer = 0.0f;
-        }
+
         #endregion
 
-
-        if (GameManager.Instance.drown && !forcedStop)
+        if (GameManager.Instance.IsGameOver() && !forcedStop)
         {
             DisableNuisanceSounds();
-            forcedStop = true;
-        }
-
-        if (GameManager.Instance.capturedFlag && !forcedStop)
-        {
-            DisableAllSounds();
             forcedStop = true;
         }
     }
@@ -63,7 +59,7 @@ public class Room : MonoBehaviour
     {
         playerInHere = true;
 
-        if (!GameManager.Instance.capturedFlag && !GameManager.Instance.drown)
+        if (!GameManager.Instance.IsGameOver())
         {
             SetPlayerVoetstapSound(col);
             SetDoorBleeps();
@@ -112,12 +108,12 @@ public class Room : MonoBehaviour
         if (_underWater)
         {
             //If yes set players sound to WaterVoetstappen
-            AudioManager.Instance.Play(playerAudioSource, "WaterVoetstappen", true);
+            AudioManager.Instance.Play(playerAudioSource, "WaterVoetstappenSnel", true);
         }
         else
         {
             //Otherwise set it to MetaalVoetstappen
-            AudioManager.Instance.Play(playerAudioSource, "MetaalVoetstappen", true);
+            AudioManager.Instance.Play(playerAudioSource, "MetaalVoetstappenSnel", true);
         }
     }
     private void DisableBeeps()
