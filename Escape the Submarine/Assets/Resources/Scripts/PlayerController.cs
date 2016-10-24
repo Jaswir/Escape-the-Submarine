@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
     /// <param name="col"></param>
     void OnCollisionEnter(Collision col)
     {
-        if (col.gameObject.tag != "Ground")
+        if (col.gameObject.tag != "Ground" && !GameManager.Instance.capturedFlag)
         {
             isColliding = true;
             AudioManager.Instance.Play(walking, "Collision", false, true);

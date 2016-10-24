@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
         LoseMessage();
-        //SceneManager.LoadScene(0);
+        SceneManager.LoadScene(0);
 
     }
 
@@ -62,9 +62,15 @@ public class GameManager : MonoBehaviour
 
     IEnumerator Win_Coroutine(float time)
     {
+        Alarm.GetComponent<AudioSource>().volume = 0.0f;
+        foreach (AudioSource AudioSource in Alarm.GetComponentsInChildren<AudioSource>())
+        {
+            AudioSource.volume = 0.0f;
+        }
+
         yield return new WaitForSeconds(time);
         WinMessage();
-        //SceneManager.LoadScene(0);
+        SceneManager.LoadScene(0);
 
     }
 

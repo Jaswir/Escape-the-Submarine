@@ -132,8 +132,9 @@ public class Room : MonoBehaviour
         if (_inHereTimer > x && !GameManager.Instance.capturedFlag)
         {
             GameManager.Instance.capturedFlag = true;
+            Time.timeScale = 0f;
             AudioManager.Instance.Play(playerController.walking, "KlimNaarBuiten", false);
-            GameManager.Instance.Win(playerController.walking.clip.length);
+            GameManager.Instance.Win(playerController.walking.clip.length + 1);
 
 
         }
